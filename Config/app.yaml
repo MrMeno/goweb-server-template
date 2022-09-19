@@ -1,0 +1,11 @@
+DisableStartupLog: true
+DisableInterruptHandler: false
+DisablePathCorrection: false
+EnablePathEscape: false
+EnableEasyJSON: true
+EnableOptimizations: true
+FireMethodNotAllowed: false
+DisableBodyConsumptionOnUnmarshal: false
+DisableAutoFireStatusCode: false
+TimeFormat: yyyy-MM-dd hh:mm:ss
+Charset: UTF-8
