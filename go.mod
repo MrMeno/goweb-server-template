@@ -3,7 +3,6 @@ module MetaWebServer
 go 1.19
 
 require (
-	github.com/didi/gendry v1.6.0
 	github.com/jinzhu/gorm v1.9.6
 	github.com/kataras/iris/v12 v12.0.0-20220922222847-4cd062101834
 	github.com/patrickmn/go-cache v2.1.0+incompatible
@@ -25,7 +24,6 @@ require (
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.1.0 // indirect
-	github.com/goccy/go-json v0.9.8-0.20220506185958-23bd66f4c0d5 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
