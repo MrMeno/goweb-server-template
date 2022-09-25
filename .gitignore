@@ -1,3 +1,4 @@
 Config/datasource.yaml
 Config/properties.yaml
-.vscode
+.vscode/*
+.idea/*

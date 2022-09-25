@@ -76,7 +76,10 @@ func newApp() (*iris.Application, string) {
 				}
 			}
 			if !Authed {
-				c.View("403.html", Page{"Merio Warning", forwardIp[0]})
+				err := c.View("403.html", Page{"Mario Warning", forwardIp[0]})
+				if err != nil {
+					return
+				}
 				c.EndRequest()
 			} else {
 				c.Next()
@@ -86,10 +89,13 @@ func newApp() (*iris.Application, string) {
 		}
 	})
 	app.Handle("GET", "/", func(ctx iris.Context) {
-		ctx.ServeFile("./Statics/index.html")
+		err := ctx.ServeFile("./Statics/index.html")
+		if err != nil {
+			return
+		}
 	})
 	mvc.Configure(app.Party("/user"), func(a *mvc.Application) {
-		a.Handle(new(Controller.UserContoller))
+		a.Handle(new(Controller.UserController))
 	})
 	return app, serverPort
 }
@@ -97,5 +103,8 @@ func newApp() (*iris.Application, string) {
 func main() {
 	app, port := newApp()
 	log.Printf("server running at:%s\n", port)
-	app.Run(iris.Addr(port), iris.WithConfiguration(iris.YAML("./Config/app.yaml")))
+	err := app.Run(iris.Addr(port), iris.WithConfiguration(iris.YAML("./Config/app.yaml")))
+	if err != nil {
+		return
+	}
 }
