@@ -54,4 +54,5 @@ type PropsConfig struct {
 	ServerPort string      `yaml:"ServerPort"`
 	Mail       []BasicHost `yaml:"Mail"`
 	FTP        []BasicHost `yaml:"FTP"`
+	Redis      []BasicHost `yaml:"Redis"`
 }

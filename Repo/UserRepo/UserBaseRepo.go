@@ -6,7 +6,7 @@ import (
 )
 
 type UserBaseRepo interface {
-	GetAllUser() (*[]User.UserInfo, error)
+	GetAllUser(map[string]interface{}) (*[]User.UserInfo, error)
 	UpdateUserInfo(map[string]interface{}) (int64, error)
 }
 
@@ -14,7 +14,7 @@ type UserBase struct {
 	log *Utils.Log4g
 }
 
-func (s *UserBase) GetAllUser() (*[]User.UserInfo, error) {
+func (s *UserBase) GetAllUser(condition map[string]interface{}) (*[]User.UserInfo, error) {
 	userModel := &User.UserInfo{}
 	reslist := []User.UserInfo{}
 	db, err := Utils.GetConnByKey("")

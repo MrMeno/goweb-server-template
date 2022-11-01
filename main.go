@@ -4,7 +4,11 @@ import (
 	"MetaWebServer/Controller"
 	"MetaWebServer/DataReflect/Config"
 	"MetaWebServer/Utils"
+	"fmt"
+	"github.com/kataras/iris/v12/sessions"
+	"github.com/kataras/iris/v12/sessions/sessiondb/redis"
 	"log"
+	"time"
 
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/middleware/logger"
@@ -21,13 +25,14 @@ type Page struct {
 加载缓存配置
 @return server port
 */
-func loadCache() string {
+func loadCache() (string, *redis.Database) {
 	cacheMgr := Utils.CacheManager(&Utils.CacheService{})
 	cacheMgr.Get(Utils.AU_G_KEY)
 	propsCache, res := cacheMgr.Get(Utils.PROP_G_KEY)
 	var port string
+	var props *Config.PropsConfig
 	if res {
-		props := propsCache.(*Config.PropsConfig)
+		props = propsCache.(*Config.PropsConfig)
 		port = props.ServerPort
 	} else {
 		port = ""
@@ -40,7 +45,18 @@ func loadCache() string {
 			Utils.CreateDBConns(v)
 		}
 	}
-	return port
+	sessionDB := redis.New(redis.Config{
+		Network:   "tcp",
+		Addr:      fmt.Sprintf("%s:%d", props.Redis[0].Host, props.Redis[0].Port),
+		Timeout:   time.Duration(30) * time.Second,
+		MaxActive: 10,
+		Username:  "",
+		Password:  "",
+		Database:  "",
+		Prefix:    props.Redis[0].User,
+		Driver:    redis.GoRedis(), // defaults.
+	})
+	return port, sessionDB
 }
 
 /*
@@ -49,14 +65,24 @@ func loadCache() string {
 @return server port
 */
 func newApp() (*iris.Application, string) {
-	serverPort := loadCache()
+	serverPort, sessionDB := loadCache()
 	app := iris.New()
 	app.Use(recover.New())
 	app.Use(logger.New())
 	cacheMgr := Utils.CacheManager(&Utils.CacheService{})
+	defer sessionDB.Close() // close the database connection if application errored.
+	sess := sessions.New(sessions.Config{
+		Cookie:          "access_token",
+		Expires:         0,
+		AllowReclaim:    true,
+		CookieSecureTLS: true,
+	})
+	sess.UseDatabase(sessionDB)
+
 	app.RegisterView(iris.HTML("./Statics", ".html"))
 	app.HandleDir("/css", iris.Dir("./Statics/css"))
 	app.HandleDir("/js", iris.Dir("./Statics/js"))
+	app.Use(sess.Handler())
 	app.Use(func(c iris.Context) {
 		var authCnf Config.AuthConfig
 		authCnfCache, res := cacheMgr.Get(Utils.AU_G_KEY)

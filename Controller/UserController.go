@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
+	"github.com/kataras/iris/v12/sessions"
 )
 
 type UserController struct {
+	Session *sessions.Session
 }
 
 func (c *UserController) Get() mvc.Result {
@@ -28,12 +30,30 @@ func (c *UserController) GetHello(ctx iris.Context) interface{} {
 
 func (c *UserController) GetAll() interface{} {
 	service := UserService.UserBaseService(&UserService.UserBaseResponse{})
-	return service.Get()
+	return service.Get(nil)
+}
+
+func (c *UserController) PutLogin(ctx iris.Context) interface{} {
+	var userParams map[string]interface{}
+	err := ctx.ReadJSON(&userParams)
+	if err != nil {
+		return nil
+	}
+	UserName := userParams["UserName"]
+	Password := userParams["Password"]
+	var condition map[string]interface{}
+	condition["UserName"] = UserName
+	condition["Password"] = Password
+	service := UserService.UserBaseService(&UserService.UserBaseResponse{})
+	return service.Get(condition)
 }
 
 func (c *UserController) PostRawJson(ctx iris.Context) interface{} {
 	var userParams map[string]interface{}
 	err := ctx.ReadJSON(&userParams)
+
+	sess := sessions.Get(ctx)
+	v := sess.Get("access_token")
 	if err != nil {
 		return mvc.Response{
 			ContentType: "text/html",
@@ -42,13 +62,15 @@ func (c *UserController) PostRawJson(ctx iris.Context) interface{} {
 	}
 	return mvc.Response{
 		ContentType: "text/html",
+
 		//Text:        fmt.Sprintf("<h1>%s gotten,id is %s!</h1>", userPram.UserName, userPram.UserID),
-		Text: fmt.Sprintf("<h1>%s gotten,id is %s!</h1>", userParams["UserName"], userParams["UserID"]),
+		Text: fmt.Sprintf("<h1>%s gotten,id is %s,session is :%#v!</h1>", userParams["UserName"], userParams["UserID"], v),
 	}
 }
 
+// PostFormJson
 /*
-etheir using application/x-www-form-urlencoded or multipart/form-data;
+ either using x-www-form-urlencoded or multipart/form-data;
 */
 func (c *UserController) PostFormJson(ctx iris.Context) interface{} {
 

@@ -2,8 +2,8 @@ DisableStartupLog: true
 DisableInterruptHandler: false
 DisablePathCorrection: false
 EnablePathEscape: false
-EnableEasyJSON: false
-EnableOptimizations: false
+EnableEasyJSON: true
+EnableOptimizations: true
 FireMethodNotAllowed: false
 DisableBodyConsumptionOnUnmarshal: false
 DisableAutoFireStatusCode: false
